@@ -7,7 +7,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD [ "python", "./discord-mensa.py" ]
+CMD [ "python", "./__main__.py" ]
 
 # $ docker build -t discord-mensa .
 # $ docker run -it --rm --name discord-mensa-running discord-mensa
