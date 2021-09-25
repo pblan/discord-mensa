@@ -10,7 +10,7 @@ from Constants import GUILD_IDS
 
 class Menu(lightbulb.slash_commands.SlashCommand):
     # Options
-    id: str = lightbulb.slash_commands.Option(
+    id: int = lightbulb.slash_commands.Option(
         description="ID der Mensa (siehe https://openmensa.org)", required=True
     )
 
