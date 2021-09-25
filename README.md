@@ -1,5 +1,4 @@
 <img align="center" src="https://discord.paddel.xyz/mensabot/images/profile_picture_circle.png" height="200" width="200">
-<br>
 
 # Robbin, Mensa Bot
 [![Python3](https://img.shields.io/badge/python-3.9-blue.svg)](https://github.com/Der-Eddy/discord_bot)
@@ -21,10 +20,6 @@ _Robbin_ ist ein Open-Source Discord-Bot, geschrieben in Python mithilfe von [Hi
 - `/mensa` gibt mithilfe einer Ortsangabe alle Mensen in der näheren Umgebung aus.
 - Auswählen einer Mensa gibt direkt den Speiseplan der Mensa für heute aus.
 
-<img align="left" src="https://discord.paddel.xyz/mensabot/images/mensa.gif" width="45%">
-
 
 ### Anzeigen von Mensen in der Umgebung
 - `/menu` gibt mithilfe der ID einer Mensa direkt den Speiseplan für heute aus.
-
-<img align="right" src="https://discord.paddel.xyz/mensabot/images/menu.gif" width="45%">
