@@ -2,22 +2,17 @@ import hikari
 import lightbulb
 import typing
 from datetime import datetime
-from ..helpers.respond_menu import respond_menu
+
+from ..helpers.utils import respond_menu
 
 from Constants import GUILD_IDS
 
 
 class Menu(lightbulb.slash_commands.SlashCommand):
-    @property
-    def options(self) -> list[hikari.CommandOption]:
-        return [
-            hikari.CommandOption(
-                name="id",
-                description="ID der Mensa (siehe https://openmensa.org)",
-                type=hikari.OptionType.INTEGER,
-                is_required=True,
-            )
-        ]
+    # Options
+    id: str = lightbulb.slash_commands.Option(
+        description="ID der Mensa (siehe https://openmensa.org)", required=True
+    )
 
     @property
     def description(self) -> str:

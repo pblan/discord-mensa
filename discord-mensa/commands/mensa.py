@@ -1,4 +1,5 @@
 import asyncio
+import hikari
 from hikari import (
     Embed,
     CommandOption,
@@ -8,30 +9,23 @@ from hikari import (
     ComponentInteraction,
 )
 from hikari.impl.special_endpoints import ActionRowBuilder
-
-# from hikari.api.special_endpoints import ActionRowBuilder
 import lightbulb
 import typing
 import requests
 from geopy import Nominatim
 from datetime import datetime
+import uuid
 
-from Constants import OPENMENSA_CANTEENS, INLINE_CODE, GUILD_IDS
-
-from ..helpers.respond_menu import respond_menu
+from ..helpers.utils import respond_menu
+from ..helpers.formatting import INLINE_CODE
+from Constants import OPENMENSA_CANTEENS, GUILD_IDS
 
 
 class Mensa(lightbulb.slash_commands.SlashCommand):
-    @property
-    def options(self) -> list[CommandOption]:
-        return [
-            CommandOption(
-                name="location",
-                description="Wo befindet sich die Mensa?",
-                type=OptionType.STRING,
-                is_required=True,
-            )
-        ]
+    # Options
+    location: str = lightbulb.slash_commands.Option(
+        description="Wo befindet sich die Mensa?", required=True
+    )
 
     @property
     def description(self) -> str:
@@ -70,7 +64,7 @@ class Mensa(lightbulb.slash_commands.SlashCommand):
         embed = (
             Embed(
                 title=f"Mensen in der Nähe von {INLINE_CODE(location)}",
-                description=f"Latitude = {found.latitude}, Longitude = {found.longitude}",
+                # description=f"Latitude = {found.latitude}, Longitude = {found.longitude}",
                 colour=Colour(0x00B1AB),
                 timestamp=datetime.now().astimezone(),
             )
@@ -81,13 +75,22 @@ class Mensa(lightbulb.slash_commands.SlashCommand):
         )
 
         # init select menu
+        custom_id = f"mensa_select{uuid.uuid1()}"
         select_menu = (
             ActionRowBuilder()
-            .add_select_menu("mensa_select")
+            .add_select_menu(custom_id)
             .set_placeholder("Wähle die Mensa aus...")
             .set_min_values(1)
             .set_max_values(1)
         )
+
+        uid = uuid.uuid4()
+
+        if len(response.json()) == 0:
+            await ctx.respond(
+                f"Ich konnte keine Mensen in der Nähe von {INLINE_CODE(location)} finden!"
+            )
+            return
 
         for mensa in response.json():
             # adding entries to the embed message
@@ -100,7 +103,7 @@ class Mensa(lightbulb.slash_commands.SlashCommand):
             # adding entries to the select menu
             select_menu = (
                 select_menu.add_option(  # add_option() returns a SelectOptionBuilder
-                    f"{mensa['name']}, ID: {mensa['id']}", str(mensa["id"])
+                    f"{mensa['name']}, ID: {mensa['id']}", f"{str(mensa['id'])}_{uid}"
                 )
                 .set_description(f"{mensa['address']}")
                 .add_to_menu()
@@ -110,26 +113,34 @@ class Mensa(lightbulb.slash_commands.SlashCommand):
             embed=embed, component=select_menu.add_to_container()
         )  # add_to_container() returns the action row itself
 
-        try:
-            event = await ctx.bot.wait_for(
-                InteractionCreateEvent,
-                predicate=(
-                    lambda event: isinstance(event.interaction, ComponentInteraction)
-                    and event.interaction.user.id == ctx.author.id
-                    and event.interaction.channel_id == ctx.channel_id
-                ),
-                timeout=15.0,
-            )
-            if event.interaction.custom_id == "mensa_select":
-                # await ctx.edit_response(event.interaction.values, components=[])
-                await respond_menu(
-                    ctx,
-                    event.interaction.values[0],
-                    datetime.now().weekday(),
-                    interaction=event.interaction,
-                )
-        except asyncio.TimeoutError:
-            await ctx.edit_response(
-                components=[]
-            )  # component=None not working currently
-            return
+        async with ctx.bot.stream(hikari.InteractionCreateEvent, 15.0).filter(
+            lambda event: isinstance(event.interaction, hikari.ComponentInteraction)
+            and str(uid) in event.interaction.values[0]
+        ) as stream:
+            async for event in stream:
+                if (
+                    event.interaction.user.id != ctx.author.id
+                    or event.interaction.channel_id != ctx.channel_id
+                ):
+                    await event.interaction.create_initial_response(
+                        hikari.ResponseType.MESSAGE_CREATE,
+                        "Du kannst nicht mit dieser Nachricht interagieren!",
+                        flags=hikari.MessageFlag.EPHEMERAL,
+                    )
+                else:
+                    # that's dirty
+                    # remember: f"{id}_{uid}"
+                    id = event.interaction.values[0][
+                        : event.interaction.values[0].rindex("_")
+                    ]
+                    await stream.close()
+                    await respond_menu(
+                        ctx,
+                        int(id),
+                        datetime.now().weekday(),
+                        interaction=event.interaction,
+                    )
+                    return
+
+        await ctx.edit_response(components=[])
+        return

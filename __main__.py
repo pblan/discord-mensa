@@ -6,12 +6,24 @@ from pathlib import Path
 
 import hikari
 import lightbulb
+import logging
 
 
 def create_bot() -> lightbulb.Bot:
 
     bot = lightbulb.Bot(
-        token=DISCORD_BOT_TOKEN, intents=hikari.Intents.ALL, slash_commands_only=True
+        token=DISCORD_BOT_TOKEN,
+        intents=hikari.Intents.ALL,
+        slash_commands_only=True,
+        # logs={
+        #    "version": 1,
+        #   "incremental": True,
+        #   "loggers": {
+        #       "hikari": {"level": "DEBUG"},
+        #       "hikari.ratelimits": {"level": "TRACE_HIKARI"},
+        #       "lightbulb": {"level": "DEBUG"},
+        #    },
+        # },
     )
 
     commands = Path("./discord-mensa/commands").glob("*.py")
