@@ -1,4 +1,4 @@
-<img align="center" src="https://discord.paddel.xyz/mensabot/images/profile_picture_circle.png" height="200" width="200">
+<img align="center" src="https://discord.paddel.xyz/media/images/profile_picture_circle.png" height="200" width="200">
 
 # Robbin, Mensa Bot
 [![Python3](https://img.shields.io/badge/python-3.9-blue.svg)](https://github.com/Der-Eddy/discord_bot)
