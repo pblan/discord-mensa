@@ -35,9 +35,12 @@ WEEKDAYS = [
 
 async def create_price_string(prices):
     res = ""
+    delim = ""
     for key, value in prices.items():
         if (value is not None):
-            res += f"| {random.choice(EMOJI_REPLACE[key])} {'{:2.2f}'.format(prices[key])}€ "
+            res += delim
+            res += f"{random.choice(EMOJI_REPLACE[key])} {'{:2.2f}'.format(prices[key])}€ "
+            delim = "| "
     return res
 
 
@@ -93,9 +96,9 @@ async def create_menu_embed(
             #print(await create_price_string(prices))
             #print(f"prices: {prices['students']}")
             embed.add_field(
-                # name=f"{meal['category']}",
-                name=f"{meal['category']} {await create_price_string(prices)} ",
-                value=f"{meal['name']}\n{INLINE_CODE(', '.join(set(meal['notes'])))}",
+                name=f"{meal['category']}",
+                #name=f"{meal['category']} {await create_price_string(prices)} ",
+                value=f"{meal['name']}\n{await create_price_string(prices)}\n{INLINE_CODE(', '.join(set(meal['notes'])))}",
                 inline=False,
             )
         return embed
