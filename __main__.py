@@ -28,6 +28,7 @@ def create_bot() -> lightbulb.Bot:
 
     commands = Path("./discord-mensa/commands").glob("*.py")
     for c in commands:
+        print(f"Loaded: {c}")
         mod = import_module(f"discord-mensa.commands.{c.stem}")
         com = mod.__dict__[f"{c.stem}".title()]
         bot.add_slash_command(com)
