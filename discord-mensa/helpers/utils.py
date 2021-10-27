@@ -7,12 +7,21 @@ from hikari.interactions.base_interactions import PartialInteraction
 import lightbulb
 import requests
 import uuid
+import random
 
 from Constants import OPENMENSA_CANTEENS
 from .formatting import INLINE_CODE
 
 ON_DAY = lambda dt, day: dt + timedelta(days=(int(day) - dt.weekday()) % 7)
 
+#PRINT_PRICES = lambda d: for val in d : 
+
+EMOJI_REPLACE = {
+    "students": [":woman_student:", ":man_student:"],
+    "employees": [":woman_office_worker:", ":man_office_worker:"],
+    "pupils": [":school_satchel:"],
+    "others": [":woman:",":man:"],
+}
 
 WEEKDAYS = [
     "Mo.",
@@ -23,6 +32,13 @@ WEEKDAYS = [
     # "Sa.",
     # "So.",
 ]
+
+async def create_price_string(prices):
+    res = ""
+    for key, value in prices.items():
+        if (value is not None):
+            res += f"| {random.choice(EMOJI_REPLACE[key])} {'{:2.2f}'.format(prices[key])}€ "
+    return res
 
 
 async def create_menu_embed(
@@ -71,8 +87,14 @@ async def create_menu_embed(
             )
         )
         for meal in response.json():
+            #prices = ast.literal_eval(meal['prices'])
+            #prices = json.load(meal['prices'])
+            prices = meal['prices']
+            #print(await create_price_string(prices))
+            #print(f"prices: {prices['students']}")
             embed.add_field(
-                name=meal["category"],
+                # name=f"{meal['category']}",
+                name=f"{meal['category']} {await create_price_string(prices)} ",
                 value=f"{meal['name']}\n{INLINE_CODE(', '.join(set(meal['notes'])))}",
                 inline=False,
             )
