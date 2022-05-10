@@ -1,5 +1,6 @@
 import asyncio
 from datetime import datetime, timedelta
+import sys
 import hikari
 from hikari import Embed, Colour
 from hikari.impl.special_endpoints import ActionRowBuilder
@@ -114,6 +115,9 @@ async def create_menu_embed(
             )
         return embed
     except:
+        # log exception
+        print("Exception:", sys.exc_info()[0])
+
         embed = Embed(
             title=f"{mensa_name}, Speiseplan vom {date.strftime('%d.%m.%Y')}",
             description="Geschlossen!",
