@@ -19,7 +19,7 @@ ON_DAY = lambda dt, day: dt + timedelta(days=(int(day) - dt.weekday()) % 7)
 VEGAN = (
     lambda meal: "vegan" in meal["category"].lower()
     or "vegan" in meal["name"].lower()
-    or "vegan" in meal["notes"].join(" ").lower()
+    or "vegan" in ", ".join(set(meal["notes"])).lower()
 )
 
 # PRINT_PRICES = lambda d: for val in d :
