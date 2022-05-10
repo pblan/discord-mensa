@@ -14,13 +14,20 @@ from .formatting import INLINE_CODE
 
 ON_DAY = lambda dt, day: dt + timedelta(days=(int(day) - dt.weekday()) % 7)
 
-#PRINT_PRICES = lambda d: for val in d : 
+# lambda to check if vegan in meal['category'], meal['name'] or meal['notes']
+VEGAN = (
+    lambda meal: "vegan" in meal["category"].lower()
+    or "vegan" in meal["name"].lower()
+    or "vegan" in meal["notes"].lower()
+)
+
+# PRINT_PRICES = lambda d: for val in d :
 
 EMOJI_REPLACE = {
     "students": [":woman_student:", ":man_student:"],
     "employees": [":woman_office_worker:", ":man_office_worker:"],
     "pupils": [":school_satchel:"],
-    "others": [":woman:",":man:"],
+    "others": [":woman:", ":man:"],
 }
 
 WEEKDAYS = [
@@ -33,13 +40,16 @@ WEEKDAYS = [
     # "So.",
 ]
 
+
 async def create_price_string(prices):
     res = ""
     delim = ""
     for key, value in prices.items():
-        if (value is not None):
+        if value is not None:
             res += delim
-            res += f"{random.choice(EMOJI_REPLACE[key])} {'{:2.2f}'.format(prices[key])}€ "
+            res += (
+                f"{random.choice(EMOJI_REPLACE[key])} {'{:2.2f}'.format(prices[key])}€ "
+            )
             delim = "| "
     return res
 
@@ -90,14 +100,15 @@ async def create_menu_embed(
             )
         )
         for meal in response.json():
-            #prices = ast.literal_eval(meal['prices'])
-            #prices = json.load(meal['prices'])
-            prices = meal['prices']
-            #print(await create_price_string(prices))
-            #print(f"prices: {prices['students']}")
+            # prices = ast.literal_eval(meal['prices'])
+            # prices = json.load(meal['prices'])
+            prices = meal["prices"]
+            # print(await create_price_string(prices))
+            # print(f"prices: {prices['students']}")
             embed.add_field(
-                name=f"{meal['category']}",
-                #name=f"{meal['category']} {await create_price_string(prices)} ",
+                # name is meal['category'] + emoji if vegan
+                name=f"{meal['category']} {':seedling:' if VEGAN(meal) else ''}",
+                # name=f"{meal['category']} {await create_price_string(prices)} ",
                 value=f"{meal['name']}\n{await create_price_string(prices)}\n{INLINE_CODE(', '.join(set(meal['notes'])))}",
                 inline=False,
             )
